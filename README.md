@@ -120,10 +120,6 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 <img src="https://streak-stats.demolab.com?user=CODER-AYANO&hide_border=true&background=0D0D0D&ring=D6B36A&fire=C94B55&currStreakLabel=D6B36A&sideLabels=E8E5DF&currStreakNum=E8E5DF&sideNums=E8E5DF&dates=777777" />
 
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cyprieng/github-breakout/main/example/dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/cyprieng/github-breakout/main/example/light.svg" />
-  <img alt="Breakout Game" src="https://raw.githubusercontent.com/cyprieng/github-breakout/main/example/dark.svg" />
-
 ![Kitsune Contribution Arcade](./assets/kitsune-arcade.svg)
 
 </picture>
