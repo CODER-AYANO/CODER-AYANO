@@ -112,13 +112,13 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 <div align="center">
 
-<img height="165" src="https://github-readme-stats.vercel.app/api?username=CODER-AYANO&show_icons=true&hide_border=true&bg_color=0d0d0d&title_color=d6b36a&icon_color=c94b55&text_color=e8e5df&ring_color=d6b36a" />
+<img src="https://github-readme-stats.vercel.app/api?username=CODER-AYANO&show_icons=true&hide_border=true&bg_color=0d0d0d&title_color=d6b36a&icon_color=c94b55&text_color=e8e5df&ring_color=d6b36a" />
 
-<img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=CODER-AYANO&layout=compact&hide_border=true&bg_color=0d0d0d&title_color=d6b36a&text_color=e8e5df" />
-
-<br/>
+<br>
 
 <img src="https://streak-stats.demolab.com?user=CODER-AYANO&hide_border=true&background=0D0D0D&ring=D6B36A&fire=C94B55&currStreakLabel=D6B36A&sideLabels=E8E5DF&currStreakNum=E8E5DF&sideNums=E8E5DF&dates=777777" />
+
+<br>
 
 ![Kitsune Contribution Arcade](./assets/kitsune-arcade.svg)
 
