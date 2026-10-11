@@ -1,0 +1,381 @@
+
+#!/usr/bin/env python3
+import datetime as dt
+import json
+import math
+import os
+import urllib.request
+import xml.sax.saxutils as xml
+
+LOGIN = os.environ.get("PROFILE_LOGIN", "CODER-AYANO")
+TOKEN = os.environ.get("GH_PROFILE_TOKEN")
+OUT = os.environ.get("OUTPUT_SVG", "assets/kitsune-arcade.svg")
+
+if not TOKEN:
+    raise SystemExit("Missing GH_PROFILE_TOKEN secret.")
+
+# Fetch the real GitHub contribution calendar.
+today = dt.datetime.now(dt.timezone.utc).date()
+start = today - dt.timedelta(days=364)
+
+query = """
+query($login: String!, $from: DateTime!, $to: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(from: $from, to: $to) {
+      contributionCalendar {
+        totalContributions
+        weeks {
+          contributionDays {
+            date
+            contributionCount
+            contributionLevel
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+payload = {
+    "query": query,
+    "variables": {
+        "login": LOGIN,
+        "from": start.isoformat() + "T00:00:00Z",
+        "to": today.isoformat() + "T23:59:59Z",
+    },
+}
+
+request = urllib.request.Request(
+    "https://api.github.com/graphql",
+    data=json.dumps(payload).encode(),
+    headers={
+        "Authorization": "Bearer " + TOKEN,
+        "Content-Type": "application/json",
+        "User-Agent": "kitsune-breakout",
+    },
+)
+
+with urllib.request.urlopen(request, timeout=30) as response:
+    result = json.loads(response.read().decode())
+
+if result.get("errors"):
+    raise SystemExit(json.dumps(result["errors"]))
+
+user = result.get("data", {}).get("user")
+if not user:
+    raise SystemExit(f"GitHub user not found: {LOGIN}")
+
+calendar = user["contributionsCollection"]["contributionCalendar"]
+weeks = calendar["weeks"]
+
+# Calendar layout.
+CELL = 12
+GAP = 4
+STEP = CELL + GAP
+LEFT = 28
+TOP = 58
+COLS = len(weeks)
+ROWS = 7
+
+WIDTH = LEFT * 2 + COLS * STEP - GAP
+GRID_BOTTOM = TOP + ROWS * STEP
+PADDLE_Y = GRID_BOTTOM + 15
+HEIGHT = GRID_BOTTOM + 66
+
+COLORS = {
+    "NONE": "#211c27",
+    "FIRST_QUARTILE": "#5b2537",
+    "SECOND_QUARTILE": "#923044",
+    "THIRD_QUARTILE": "#d49b35",
+    "FOURTH_QUARTILE": "#ffe09a",
+}
+
+blocks = []
+
+for col, week in enumerate(weeks):
+    for day in week["contributionDays"]:
+        date = dt.date.fromisoformat(day["date"])
+        row = (date.weekday() + 1) % 7  # Sunday first
+
+        bx = LEFT + col * STEP
+        by = TOP + row * STEP
+
+        blocks.append({
+            "x": bx,
+            "y": by,
+            "level": day["contributionLevel"],
+            "date": day["date"],
+            "count": day["contributionCount"],
+            "alive": True,
+            "hit_time": None,
+        })
+
+# Breakout physics.
+BALL_R = 3.5
+FPS = 30
+DURATION = 30.0
+FRAME_COUNT = int(FPS * DURATION)
+
+MIN_X = LEFT + BALL_R
+MAX_X = LEFT + COLS * STEP - GAP - BALL_R
+MIN_Y = TOP + BALL_R
+MAX_Y = HEIGHT
+
+x = LEFT + 30.0
+y = GRID_BOTTOM - 4.0
+vx = 2.8
+vy = -2.4
+
+MAX_SPEED = 4.5
+
+# Each animation frame stores the ball and paddle positions.
+positions = []
+paddle_positions = []
+hit_times = []
+hit_blocks = set()
+
+dt_step = 1.0 / FPS
+substeps = 4
+
+# Initial paddle position
+paddle_width = 48
+paddle_x = LEFT + COLS * STEP / 2
+
+for frame in range(FRAME_COUNT + 1):
+    positions.append((x, y))
+    paddle_positions.append(paddle_x)
+    current_time = frame * dt_step
+
+    for _ in range(substeps):
+        sx = vx / substeps
+        sy = vy / substeps
+
+        old_x, old_y = x, y
+        x += sx
+        y += sy
+
+        # Left and right wall collisions.
+        if x < MIN_X:
+            x = MIN_X
+            vx = abs(vx)
+        elif x > MAX_X:
+            x = MAX_X
+            vx = -abs(vx)
+
+        # Top wall collision.
+        if y < MIN_Y:
+            y = MIN_Y
+            vy = abs(vy)
+
+        # Bottom paddle: moves to follow ball's x position.
+        paddle_width = 48
+
+        # Smoothly move paddle towards ball's X position
+        target_x = x
+        paddle_speed = 3.0
+        if paddle_x < target_x:
+            paddle_x = min(paddle_x + paddle_speed, target_x)
+        elif paddle_x > target_x:
+            paddle_x = max(paddle_x - paddle_speed, target_x)
+
+        # Keep paddle in bounds
+        paddle_half = paddle_width / 2
+        paddle_x = max(LEFT + paddle_half, min(paddle_x, LEFT + COLS * STEP - GAP - paddle_half))
+
+        paddle_left = paddle_x - paddle_half
+        paddle_right = paddle_x + paddle_half
+
+        if vy > 0 and y >= PADDLE_Y - BALL_R and y <= PADDLE_Y + 2:
+            if x >= paddle_left - BALL_R and x <= paddle_right + BALL_R:
+                y = PADDLE_Y - BALL_R
+                # A slight angle change makes the trajectory less repetitive.
+                offset = (x - paddle_x) / (paddle_width / 2)
+                vx += offset * 0.6
+                # Clamp velocity to prevent it from becoming too extreme
+                speed = math.sqrt(vx * vx + vy * vy)
+                if speed > MAX_SPEED:
+                    vx = vx / speed * MAX_SPEED
+                    vy = vy / speed * MAX_SPEED
+                vy = -abs(vy)
+
+        # Reset the ball when it misses the paddle and goes off screen.
+        if y > PADDLE_Y + 20:
+            x = LEFT + 30.0
+            y = GRID_BOTTOM - 4.0
+            vx = 2.8 if frame % 2 == 0 else -2.8
+            vy = -2.4
+
+        # Circle-vs-cell collision. Remove each block at most once.
+        for index, block in enumerate(blocks):
+            if index in hit_blocks:
+                continue
+
+            bx, by = block["x"], block["y"]
+
+            # Find the nearest point on the block to the ball center
+            nearest_x = max(bx, min(x, bx + CELL))
+            nearest_y = max(by, min(y, by + CELL))
+
+            dx = x - nearest_x
+            dy = y - nearest_y
+            dist_sq = dx * dx + dy * dy
+
+            if dist_sq <= BALL_R * BALL_R:
+                hit_blocks.add(index)
+                block["hit_time"] = current_time
+                hit_times.append(current_time)
+
+                # Determine collision normal based on ball position relative to block
+                center_x = bx + CELL / 2
+                center_y = by + CELL / 2
+
+                # Calculate penetration depth for each axis
+                left_pen = (x + BALL_R) - bx
+                right_pen = (bx + CELL) - (x - BALL_R)
+                top_pen = (y + BALL_R) - by
+                bottom_pen = (by + CELL) - (y - BALL_R)
+
+                min_x_pen = min(left_pen, right_pen)
+                min_y_pen = min(top_pen, bottom_pen)
+
+                # Reflect on the axis with less penetration (more likely entry point)
+                if min_x_pen < min_y_pen:
+                    vx = -vx
+                    # Push ball out on x-axis
+                    if left_pen < right_pen:
+                        x = bx - BALL_R
+                    else:
+                        x = bx + CELL + BALL_R
+                else:
+                    vy = -vy
+                    # Push ball out on y-axis
+                    if top_pen < bottom_pen:
+                        y = by - BALL_R
+                    else:
+                        y = by + CELL + BALL_R
+
+                break
+
+# Generate contribution cells and fade hit cells.
+rect_markup = []
+
+for block in blocks:
+    color = COLORS.get(block["level"], COLORS["NONE"])
+    title = xml.escape(
+        f'{block["date"]}: {block["count"]} contributions'
+    )
+
+    animation = ""
+    if block["hit_time"] is not None:
+        animation = (
+            f'<animate attributeName="opacity" '
+            f'begin="{block["hit_time"]:.3f}s" '
+            f'dur="0.15s" values="1;0.08" fill="freeze"/>'
+        )
+
+    rect_markup.append(
+        f'<g><rect x="{block["x"]}" y="{block["y"]}" '
+        f'width="{CELL}" height="{CELL}" rx="3" '
+        f'fill="{color}" stroke="#f6d58a" '
+        f'stroke-opacity=".12">'
+        f'<title>{title}</title></rect>{animation}</g>'
+    )
+
+# SMIL keyframes drive the ball and paddle in two dimensions.
+key_times = ";".join(
+    f"{i / FRAME_COUNT:.6f}"
+    for i in range(FRAME_COUNT + 1)
+)
+
+xs = ";".join(f"{p[0]:.2f}" for p in positions)
+ys = ";".join(f"{p[1]:.2f}" for p in positions)
+paddle_xs = ";".join(f"{px:.2f}" for px in paddle_positions)
+
+safe_login = xml.escape(LOGIN)
+
+svg = f"""<svg xmlns="http://www.w3.org/2000/svg"
+ width="{WIDTH}" height="{HEIGHT}"
+ viewBox="0 0 {WIDTH} {HEIGHT}">
+<title>Kitsune Breakout — {safe_login}</title>
+<desc>Japanese-inspired contribution calendar with a simulated
+Breakout ball, bouncing walls, block hits, and a paddle.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#100e16"/>
+    <stop offset="1" stop-color="#24101b"/>
+  </linearGradient>
+  <linearGradient id="ball">
+    <stop stop-color="#ff405b"/>
+    <stop offset=".55" stop-color="#ffbd59"/>
+    <stop offset="1" stop-color="#fff0b5"/>
+  </linearGradient>
+  <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+    <feGaussianBlur stdDeviation="2" result="blur"/>
+    <feMerge>
+      <feMergeNode in="blur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+
+<rect width="100%" height="100%" rx="16"
+ fill="url(#bg)" stroke="#a65a43" stroke-opacity=".6"/>
+
+<text x="24" y="29" fill="#ffe5ad"
+ font-family="monospace" font-size="16" font-weight="bold">
+狐 KITSUNE BREAKOUT</text>
+<text x="{WIDTH-24}" y="29" text-anchor="end"
+ fill="#e4a6a6" font-family="monospace" font-size="10">
+{safe_login}</text>
+<path d="M20 40 H{WIDTH-20}"
+ stroke="#a65a43" stroke-opacity=".5"/>
+
+{''.join(rect_markup)}
+
+<!-- Animated paddle follows ball's X position. -->
+<rect x="0" y="{PADDLE_Y:.1f}" width="48" height="4" rx="2"
+ fill="#d49b35" filter="url(#glow)">
+  <animate attributeName="x" values="{';'.join(f'{px - 24:.2f}' for px in paddle_positions)}"
+   keyTimes="{key_times}" dur="{DURATION}s"
+   repeatCount="indefinite" calcMode="linear"/>
+</rect>
+
+<g filter="url(#glow)">
+  <circle r="{BALL_R}" fill="url(#ball)"
+   stroke="#fff0b5" stroke-width="1">
+    <animate attributeName="cx" values="{xs}"
+     keyTimes="{key_times}" dur="{DURATION}s"
+     repeatCount="indefinite" calcMode="linear"/>
+    <animate attributeName="cy" values="{ys}"
+     keyTimes="{key_times}" dur="{DURATION}s"
+     repeatCount="indefinite" calcMode="linear"/>
+  </circle>
+  <circle r="7.5" fill="none" stroke="#ff5269"
+   stroke-width="1.2" opacity=".65">
+    <animate attributeName="cx" values="{xs}"
+     keyTimes="{key_times}" dur="{DURATION}s"
+     repeatCount="indefinite" calcMode="linear"/>
+    <animate attributeName="cy" values="{ys}"
+     keyTimes="{key_times}" dur="{DURATION}s"
+     repeatCount="indefinite" calcMode="linear"/>
+  </circle>
+</g>
+
+<text x="24" y="{HEIGHT-18}" fill="#ffe5ad"
+ font-family="monospace" font-size="11">
+{calendar["totalContributions"]} contributions · Breakout simulation</text>
+<text x="{WIDTH-24}" y="{HEIGHT-18}" text-anchor="end"
+ fill="#c17b86" font-family="monospace" font-size="10">
+赤 • 金 • 狐</text>
+</svg>
+"""
+
+os.makedirs(os.path.dirname(OUT) or ".", exist_ok=True)
+with open(OUT, "w", encoding="utf-8") as file:
+    file.write(svg)
+
+print(
+    f"Generated {OUT}: {len(blocks)} cells, "
+    f"{len(hit_blocks)} simulated block hits."
+)

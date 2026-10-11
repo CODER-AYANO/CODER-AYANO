@@ -1,0 +1,35 @@
+name: Kitsune Contribution Arcade
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generate SVG from GitHub contributions
+        env:
+          GH_PROFILE_TOKEN: ${{ secrets.GH_PROFILE_TOKEN }}
+          PROFILE_LOGIN: CODER-AYANO
+          OUTPUT_SVG: assets/kitsune-arcade.svg
+        run: python scripts/generate_kitsune.py
+      - name: Commit updated SVG
+        run: |
+          if git diff --quiet -- assets/kitsune-arcade.svg; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/kitsune-arcade.svg
+          git commit -m "Update kitsune contribution arcade"
+          git push
