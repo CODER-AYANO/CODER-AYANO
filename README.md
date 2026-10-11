@@ -2,8 +2,7 @@
 
 <div align="center">
   
-  <img width="2172" height="724" alt="ASCII Kitsune Moon" src="https://github.com/user-attachments/assets/724682a1-5d7e-453d-a013-36c15d37735e" />
-
+  <img width="2172" height="724" alt="ASCII Moon Without Kitsune" src="https://github.com/user-attachments/assets/47af4b6d-67c5-4167-80a5-da6bec3498e8" />
 
   <h3>「静寂の中に、力を。」</h3>
 
