@@ -26,7 +26,7 @@
 
 ---
 
-## `01` — THE DEVELOPER
+## THE DEVELOPER
 
 ```yaml
 username: ayano
@@ -47,58 +47,38 @@ From browser extensions to database-driven applications, I enjoy understanding h
 
 ---
 
-## `02` — ARSENAL
+## ARSENAL
 
 <div align="center">
 
-### Languages
-
-<img src="https://skillicons.dev/icons?i=cpp,c,python,js,html,css,sql&theme=dark" />
-
-### Tools & Technologies
-
-<img src="https://skillicons.dev/icons?i=git,github,vscode,linux,flask,mysql,supabase,chrome&theme=dark" />
+<img src="https://skillicons.dev/icons?i=cpp,c,python,js,html,css,git,github,vscode,arch,flask,mysql,supabase,firebase,nodejs,figma&theme=dark" />
 
 </div>
 
 ---
 
-## `03` — PROJECTS
+## PROJECTS
 
-### ◈ Formly
-**AI-powered browser form autofill**
-
-A Chrome extension that uses AI to understand web forms and automate filling relevant fields.
-
-`JavaScript` `Chrome Extensions` `Gemini API`
-
-### ◈ Recall
+### **[Recall](https://github.com/CODER-AYANO/Recall)**
 **A smarter way to remember what you read**
 
 A browser extension concept for extracting website content, organizing information into tagged text files, and using AI to answer questions about saved articles.
 
 `JavaScript` `Chrome Extensions` `LLMs`
 
-### ◈ Course Enrollment Advisor
-**Making course selection smarter**
-
-A database-backed course advisory application combining SQL data with an NLP-powered chatbot to help students navigate course information.
-
-`Python` `MySQL` `NLP`
-
-### ◈ QR Component Tracking
-**Bringing traceability to component management**
-
-A web application designed to track components through QR codes and manage their associated records.
-
-`Python` `Flask` `MySQL`
-
-### ◈ Luma Wave
+### **[Luma Wave](https://github.com/CODER-AYANO/Luma-Wave)**
 **A visual experience for the desktop**
 
 A Windows desktop visualizer project exploring a more immersive, aesthetic visual experience.
 
-`Python` `Desktop Development`
+`Python` `Desktop Development` `Windows`
+
+### **[Formly](https://github.com/CODER-AYANO/Formly)**
+**AI-powered browser form autofill**
+
+A Chrome extension that uses AI to understand web forms and automate filling relevant fields.
+
+`JavaScript` `Chrome Extensions` `Gemini API`
 
 <div align="center">
 
@@ -108,17 +88,17 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 ---
 
-## `04` — GITHUB ACTIVITY
+## GITHUB ACTIVITY
 
 <div align="center">
 
-<img src="https://github-readme-stats.vercel.app/api?username=CODER-AYANO&show_icons=true&hide_border=true&bg_color=0d0d0d&title_color=d6b36a&icon_color=c94b55&text_color=e8e5df&ring_color=d6b36a" />
+<img src="https://github-readme-stats.vercel.app/api?username=CODER-AYANO&show_icons=true&hide_border=false&border_color=C94B55&bg_color=0d0d0d&title_color=d6b36a&icon_color=c94b55&text_color=e8e5df&ring_color=d6b36a" />
 
 <br>
 
-<img src="https://streak-stats.demolab.com?user=CODER-AYANO&hide_border=true&background=0D0D0D&ring=D6B36A&fire=C94B55&currStreakLabel=D6B36A&sideLabels=E8E5DF&currStreakNum=E8E5DF&sideNums=E8E5DF&dates=777777" />
+<img src="https://streak-stats.demolab.com?user=CODER-AYANO&hide_border=false&background=0D0D0D&ring=D6B36A&fire=C94B55&border=C94B55&currStreakLabel=C94B55&sideLabels=E8E5DF&currStreakNum=E8E5DF&sideNums=E8E5DF&dates=777777" />
 
-<br>
+<br><br>
 
 ![Kitsune Contribution Arcade](./assets/kitsune-arcade.svg)
 
@@ -128,7 +108,7 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 ---
 
-## `05` — THE CODE
+## THE CODE
 <div align="center">
 
 ```text
@@ -148,7 +128,7 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 ---
 
-## `06` — CONNECT
+## CONNECT
 
 <div align="center">
 
@@ -156,7 +136,24 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
   <img src="https://img.shields.io/badge/GitHub-CODER--AYANO-d6b36a?style=for-the-badge&logo=github&logoColor=white&labelColor=111111" />
 </a>
 
-<br/><br/>
+<a href="https://linkedin.com/in/manan-sharma-b6a529314">
+  <img src="https://img.shields.io/badge/LinkedIn-Manan%20Sharma-c94b55?style=for-the-badge&logo=linkedin&logoColor=white&labelColor=111111" />
+</a>
+
+<a href="https://leetcode.com/u/AYANO_KUN/">
+  <img src="https://img.shields.io/badge/LeetCode-Profile-e8e5df?style=for-the-badge&logo=leetcode&logoColor=white&labelColor=111111" />
+</a>
+
+<a href="mailto:edu.manansharma@gmail.com">
+  <img src="https://img.shields.io/badge/Manan%20Sharma-d6b36a?style=for-the-badge&logo=gmail&logoColor=white&labelColor=111111" />
+</a>
+
+<!-- Portfolio, if you have one 
+<a href="YOUR_PORTFOLIO_URL">
+  <img src="https://img.shields.io/badge/Portfolio-Visit-d6b36a?style=for-the-badge&logo=firefox&logoColor=white&labelColor=111111" />
+</a>
+-->
+<br/>
 
 <sub>静かに作り、確実に進む。</sub>
 
@@ -164,7 +161,7 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 <sub>Build quietly. Progress relentlessly.</sub>
 
-<br/><br/>
+<br/>
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" alt="Bottom Line" width="100%" />
@@ -172,6 +169,6 @@ A Windows desktop visualizer project exploring a more immersive, aesthetic visua
 
 <img src="https://img.shields.io/badge/◈-DARKNESS-111111?style=flat-square" />
 <img src="https://img.shields.io/badge/◈-DISCIPLINE-292929?style=flat-square" />
-<img src="https://img.shields.io/badge/◈-PRECISION-d6b36a?style=flat-square" />
+<img src="https://img.shields.io/badge/◈-PRECISION-e8e5df?style=flat-square" />
 
 </div>
